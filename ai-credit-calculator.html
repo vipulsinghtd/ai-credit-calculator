@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treasure AI Credit Calculator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --td-primary: #494FFF;
+    --td-secondary-1: #8753FF;
+    --td-secondary-2: #C466D4;
+    --td-accent-lime: #9DCC4C;
+    --td-accent-red: #EE2328;
+    --td-accent-salmon: #F69068;
+    --td-gradient: linear-gradient(135deg, #494FFF, #8753FF, #C466D4);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fc;
+    color: #1a1a2e;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: var(--td-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .header p {
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto 1.5rem;
+    border-bottom: 2px solid #e8e8f0;
+  }
+  .tab-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .tab-btn:hover { color: #555; }
+  .tab-btn.active {
+    color: var(--td-primary);
+  }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--td-primary);
+    border-radius: 3px 3px 0 0;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .calculator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) { .calculator-grid { grid-template-columns: 1fr; } }
+  .product-card {
+    background: #ffffff;
+    border: 1px solid rgba(73,79,255,0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .product-card:hover {
+    border-color: rgba(73,79,255,0.4);
+    box-shadow: 0 4px 24px rgba(73,79,255,0.12);
+  }
+  .product-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+  .card-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    background: rgba(73,79,255,0.15);
+    color: var(--td-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .card-definition {
+    font-size: 0.82rem;
+    color: #555;
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+    padding: 0.75rem;
+    background: #f4f4fb;
+    border-radius: 8px;
+    border-left: 3px solid var(--td-secondary-1);
+  }
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  .input-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #444;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+  .input-group .unit {
+    font-size: 0.7rem;
+    color: #999;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .input-row input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #e0e0f0;
+    outline: none;
+  }
+  .input-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--td-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(73,79,255,0.4);
+  }
+  .input-row input[type="number"] {
+    width: 90px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #1a1a2e;
+    font-size: 0.9rem;
+    text-align: right;
+    outline: none;
+  }
+  .input-row input[type="number"]:focus {
+    border-color: var(--td-primary);
+    box-shadow: 0 0 0 2px rgba(73,79,255,0.15);
+  }
+  .credit-output {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(73,79,255,0.06);
+    border-radius: 10px;
+    margin-top: 1rem;
+  }
+  .credit-output .label {
+    font-size: 0.8rem;
+    color: #666;
+  }
+  .credit-output .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--td-primary);
+  }
+  .conversion-note {
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 0.5rem;
+    text-align: right;
+  }
+  .total-section {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    background: var(--td-gradient);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .total-section h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .total-credits {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #fff;
+  }
+  .total-annual {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-top: 0.25rem;
+    color: #fff;
+  }
+  .select-group select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #1a1a2e;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .select-group select option {
+    background: #fff;
+    color: #1a1a2e;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.8rem;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .bk-label { color: #666; }
+  .breakdown-row .bk-value { color: var(--td-secondary-1); font-weight: 600; }
+
+  /* Tiers Tab */
+  .tiers-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .tiers-intro {
+    background: #fff;
+    border: 1px solid rgba(73,79,255,0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .tiers-intro h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+  }
+  .tiers-intro p {
+    font-size: 0.88rem;
+    color: #555;
+    line-height: 1.6;
+  }
+  .tiers-table-wrap {
+    background: #fff;
+    border: 1px solid rgba(73,79,255,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .tiers-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tiers-table thead {
+    background: var(--td-gradient);
+  }
+  .tiers-table thead th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tiers-table tbody tr {
+    border-bottom: 1px solid #f0f0f5;
+    transition: background 0.15s;
+  }
+  .tiers-table tbody tr:hover {
+    background: rgba(73,79,255,0.03);
+  }
+  .tiers-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  .tiers-table td {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.88rem;
+  }
+  .tiers-table .tier-name {
+    font-weight: 700;
+    color: var(--td-primary);
+    font-size: 0.95rem;
+  }
+  .tiers-table .tier-range {
+    color: #333;
+  }
+  .tiers-table .tier-category {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .cat-entry { background: #e8f5e9; color: #2e7d32; }
+  .cat-mid { background: #e3f2fd; color: #1565c0; }
+  .cat-upper { background: #f3e5f5; color: #7b1fa2; }
+  .cat-premium { background: #fff3e0; color: #e65100; }
+  .cat-enterprise { background: #fce4ec; color: #c62828; }
+  .tier-highlight {
+    background: rgba(73,79,255,0.05) !important;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Treasure AI Credit Calculator</h1>
+  <p>Estimate monthly and annual AI credit consumption across Treasure AI products</p>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('calculator')">Calculator</button>
+  <button class="tab-btn" onclick="switchTab('tiers')">Tiers Reference</button>
+</div>
+
+<!-- Calculator Tab -->
+<div id="tab-calculator" class="tab-content active">
+
+<div class="calculator-grid">
+
+  <!-- AI Foundry -->
+  <div class="product-card">
+    <div class="card-header">
+      <span class="card-title">AI Foundry</span>
+      <span class="card-badge">All Suites</span>
+    </div>
+    <div class="card-definition">
+      AI Agent Foundry powers conversational AI across Treasure AI Studio, Code, and AI Agents. A <strong>Conversation</strong> is defined as an average of five back-and-forth exchanges between two entities using standard Large Language Models. Metered across Studio, Code, and AI Agent Foundry on Production Instances.
+    </div>
+    <div class="input-group">
+      <label>Total Conversations / month (Thousands) <span class="unit">× 1,000</span></label>
+      <div class="input-row">
+        <input type="range" id="foundry-slider" min="0" max="500" value="0" step="1">
+        <input type="number" id="foundry-input" min="0" max="10000" value="0" step="1">
+      </div>
+    </div>
+    <div class="credit-output">
+      <span class="label">Credits / Month</span>
+      <span class="value" id="foundry-credits">0.00</span>
+    </div>
+    <div class="conversion-note">1 Credit = 600 Conversations</div>
+  </div>
+
+  <!-- Agentic Engage -->
+  <div class="product-card">
+    <div class="card-header">
+      <span class="card-title">Agentic Engage</span>
+      <span class="card-badge">Engagement Suite</span>
+    </div>
+    <div class="card-definition">
+      Agentic Engage enables AI-powered customer engagement through email, push notifications, and messaging at scale. <strong>Email Messages</strong> are counted from messages sent via Engage Studio in Production Instances. Supports personalized, AI-optimized content delivery.
+    </div>
+    <div class="input-group">
+      <label>Emails Sent / month (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="engage-slider" min="0" max="50" value="0" step="0.5">
+        <input type="number" id="engage-input" min="0" max="1000" value="0" step="0.1">
+      </div>
+    </div>
+    <div class="credit-output">
+      <span class="label">Credits / Month</span>
+      <span class="value" id="engage-credits">0.00</span>
+    </div>
+    <div class="conversion-note">1 Credit = 1 Million Email Messages</div>
+  </div>
+
+  <!-- RT Personalization -->
+  <div class="product-card">
+    <div class="card-header">
+      <span class="card-title">RT Personalization</span>
+      <span class="card-badge">Personalization Suite</span>
+    </div>
+    <div class="card-definition">
+      Real-Time Personalization delivers sub-second API responses with customer attributes from the RT Decision Engine. <strong>RT Profiles</strong> are collections of customer attributes held in the engine, measured as the 4th highest daily count per month. <strong>Personalization Calls</strong> are API calls returning up to 20 attributes per request.
+    </div>
+    <div class="input-group">
+      <label>Total RT Profiles (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="rt-profiles-slider" min="0" max="50" value="0" step="0.5">
+        <input type="number" id="rt-profiles-input" min="0" max="500" value="0" step="0.1">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Personalization Calls / month (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="rt-calls-slider" min="0" max="500" value="0" step="5">
+        <input type="number" id="rt-calls-input" min="0" max="5000" value="0" step="1">
+      </div>
+    </div>
+    <div class="credit-output">
+      <span class="label">Credits / Month</span>
+      <span class="value" id="rt-pz-credits">0.00</span>
+    </div>
+    <div class="conversion-note">1 Credit = 1 Million RT Profiles &nbsp;|&nbsp; 1 Credit = 10 Million Personalization Calls</div>
+  </div>
+
+  <!-- RT Triggers -->
+  <div class="product-card">
+    <div class="card-header">
+      <span class="card-title">RT Triggers</span>
+      <span class="card-badge">Personalization & Engagement</span>
+    </div>
+    <div class="card-definition">
+      Real-Time Triggers fire downstream actions (webhooks, messaging, journey entry) when streaming events meet defined criteria — with ~3 minute end-to-end latency. <strong>Incoming Events</strong> are streaming events ingested into the RT Decision Engine. <strong>Trigger Activations</strong> are outgoing events generated from the engine to external systems.
+    </div>
+    <div class="input-group">
+      <label>RT Profiles (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="trig-profiles-slider" min="0" max="50" value="0" step="0.5">
+        <input type="number" id="trig-profiles-input" min="0" max="500" value="0" step="0.1">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Incoming Trigger Events / month (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="trig-events-slider" min="0" max="500" value="0" step="5">
+        <input type="number" id="trig-events-input" min="0" max="5000" value="0" step="1">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Outgoing Trigger Activations / month (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="trig-activations-slider" min="0" max="500" value="0" step="5">
+        <input type="number" id="trig-activations-input" min="0" max="5000" value="0" step="1">
+      </div>
+    </div>
+    <div class="credit-output">
+      <span class="label">Credits / Month</span>
+      <span class="value" id="rt-trig-credits">0.00</span>
+    </div>
+    <div class="conversion-note">1 Credit = 1 Million Profiles &nbsp;|&nbsp; 1 Credit = 15 Million Events &nbsp;|&nbsp; 1 Credit = 25 Million Activations</div>
+  </div>
+
+  <!-- AI Signals -->
+  <div class="product-card full-width">
+    <div class="card-header">
+      <span class="card-title">AI Signals</span>
+      <span class="card-badge">Multiple Suites</span>
+    </div>
+    <div class="card-definition">
+      AI Signals provides enterprise AutoML capabilities within Treasure Workflows — automating preprocessing, feature engineering, model selection, training, and evaluation. Includes <strong>AutoML Framework Packages</strong> (infrastructure for model building), <strong>Framework Add-Ons</strong> (extended capabilities), and <strong>Solution Notebooks</strong> (pre-built ML use cases like churn prediction, propensity scoring, and lead scoring). Credits apply to Predictions generated by ML and RFM models.
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+      <div class="input-group select-group">
+        <label>AutoML Framework Package</label>
+        <select id="signals-framework">
+          <option value="none">No AutoML</option>
+          <option value="basic">Basic</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </div>
+      <div class="input-group select-group">
+        <label>Framework Add-Ons</label>
+        <select id="signals-addons">
+          <option value="none">No AutoML</option>
+          <option value="basic">Basic Add-On</option>
+          <option value="advanced">Advanced Add-On</option>
+        </select>
+      </div>
+      <div class="input-group select-group">
+        <label>Solution Notebook Package</label>
+        <select id="signals-notebook">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-group" style="margin-top: 0.5rem;">
+      <label>ML Model Predictions / month (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="signals-ml-slider" min="0" max="500" value="0" step="5">
+        <input type="number" id="signals-ml-input" min="0" max="5000" value="0" step="1">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>RFM Model Predictions / month (Millions) <span class="unit">× 1,000,000</span></label>
+      <div class="input-row">
+        <input type="range" id="signals-rfm-slider" min="0" max="1000" value="0" step="10">
+        <input type="number" id="signals-rfm-input" min="0" max="10000" value="0" step="1">
+      </div>
+    </div>
+    <div class="credit-output">
+      <span class="label">Credits / Month</span>
+      <span class="value" id="signals-credits">0.00</span>
+    </div>
+    <div class="conversion-note">1 Credit = 40 Million ML Predictions &nbsp;|&nbsp; 1 Credit = 100 Million RFM Predictions</div>
+  </div>
+
+</div>
+
+<!-- Total -->
+<div class="total-section">
+  <div>
+    <h2>Total Estimated Credits</h2>
+    <div class="total-annual" id="total-annual">0.00 Credits / Year</div>
+  </div>
+  <div style="text-align: right;">
+    <div class="total-credits" id="total-credits">0.00</div>
+    <div class="total-annual">Credits / Month</div>
+  </div>
+</div>
+
+<!-- Breakdown -->
+<div style="max-width: 1200px; margin: 1.5rem auto 0; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+  <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #1a1a2e;">Monthly Breakdown</div>
+  <div class="breakdown-row"><span class="bk-label">AI Foundry</span><span class="bk-value" id="bk-foundry">0.00</span></div>
+  <div class="breakdown-row"><span class="bk-label">Agentic Engage</span><span class="bk-value" id="bk-engage">0.00</span></div>
+  <div class="breakdown-row"><span class="bk-label">RT Personalization</span><span class="bk-value" id="bk-rt-pz">0.00</span></div>
+  <div class="breakdown-row"><span class="bk-label">RT Triggers</span><span class="bk-value" id="bk-rt-trig">0.00</span></div>
+  <div class="breakdown-row"><span class="bk-label">AI Signals</span><span class="bk-value" id="bk-signals">0.00</span></div>
+</div>
+
+</div><!-- end calculator tab -->
+
+<!-- Tiers Reference Tab -->
+<div id="tab-tiers" class="tab-content">
+  <div class="tiers-container">
+    <div class="tiers-intro">
+      <h2>AI Suite Credits Tier Structure</h2>
+      <p>Treasure AI credits are organized into tiers based on annual consumption. Each tier defines a range of annual credits that determines your entitlement level. The tier is calculated from total annual credits across all AI Suite products (AI Foundry, Agentic Engage, RT Personalization, RT Triggers, and AI Signals).</p>
+    </div>
+
+    <div class="tiers-table-wrap">
+      <table class="tiers-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Annual Credits (Min)</th>
+            <th>Annual Credits (Max)</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tier-name">0</td>
+            <td class="tier-range">—</td>
+            <td class="tier-range">—</td>
+            <td><span class="tier-category cat-entry">No Credits</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">A</td>
+            <td class="tier-range">1</td>
+            <td class="tier-range">59.99</td>
+            <td><span class="tier-category cat-entry">Entry</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">B</td>
+            <td class="tier-range">60</td>
+            <td class="tier-range">119.99</td>
+            <td><span class="tier-category cat-entry">Entry</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">C</td>
+            <td class="tier-range">120</td>
+            <td class="tier-range">179.99</td>
+            <td><span class="tier-category cat-entry">Entry</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">D</td>
+            <td class="tier-range">180</td>
+            <td class="tier-range">239.99</td>
+            <td><span class="tier-category cat-entry">Entry</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">E</td>
+            <td class="tier-range">240</td>
+            <td class="tier-range">299.99</td>
+            <td><span class="tier-category cat-entry">Entry</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">F</td>
+            <td class="tier-range">300</td>
+            <td class="tier-range">359.99</td>
+            <td><span class="tier-category cat-entry">Entry</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">G</td>
+            <td class="tier-range">360</td>
+            <td class="tier-range">479.99</td>
+            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">H</td>
+            <td class="tier-range">480</td>
+            <td class="tier-range">599.99</td>
+            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">I</td>
+            <td class="tier-range">600</td>
+            <td class="tier-range">719.99</td>
+            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">J</td>
+            <td class="tier-range">720</td>
+            <td class="tier-range">959.99</td>
+            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">K</td>
+            <td class="tier-range">960</td>
+            <td class="tier-range">1,199.99</td>
+            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">L</td>
+            <td class="tier-range">1,200</td>
+            <td class="tier-range">1,799.99</td>
+            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">M</td>
+            <td class="tier-range">1,800</td>
+            <td class="tier-range">2,399.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">N</td>
+            <td class="tier-range">2,400</td>
+            <td class="tier-range">2,999.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">O</td>
+            <td class="tier-range">3,000</td>
+            <td class="tier-range">3,599.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">P</td>
+            <td class="tier-range">3,600</td>
+            <td class="tier-range">4,799.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">Q</td>
+            <td class="tier-range">4,800</td>
+            <td class="tier-range">5,999.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">R</td>
+            <td class="tier-range">6,000</td>
+            <td class="tier-range">7,199.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">S</td>
+            <td class="tier-range">7,200</td>
+            <td class="tier-range">8,399.99</td>
+            <td><span class="tier-category cat-upper">Upper Mid</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">T</td>
+            <td class="tier-range">8,400</td>
+            <td class="tier-range">9,599.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">U</td>
+            <td class="tier-range">9,600</td>
+            <td class="tier-range">10,799.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">V</td>
+            <td class="tier-range">10,800</td>
+            <td class="tier-range">11,999.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">W</td>
+            <td class="tier-range">12,000</td>
+            <td class="tier-range">14,999.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">X</td>
+            <td class="tier-range">15,000</td>
+            <td class="tier-range">17,999.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">Y</td>
+            <td class="tier-range">18,000</td>
+            <td class="tier-range">20,999.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">Z</td>
+            <td class="tier-range">21,000</td>
+            <td class="tier-range">23,999.99</td>
+            <td><span class="tier-category cat-premium">Premium</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">AA</td>
+            <td class="tier-range">24,000</td>
+            <td class="tier-range">29,999.99</td>
+            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">AB</td>
+            <td class="tier-range">30,000</td>
+            <td class="tier-range">35,999.99</td>
+            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">AC</td>
+            <td class="tier-range">36,000</td>
+            <td class="tier-range">41,999.99</td>
+            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">AD</td>
+            <td class="tier-range">42,000</td>
+            <td class="tier-range">47,999.99</td>
+            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">AE</td>
+            <td class="tier-range">48,000</td>
+            <td class="tier-range">53,999.99</td>
+            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
+          </tr>
+          <tr>
+            <td class="tier-name">AF</td>
+            <td class="tier-range">54,000</td>
+            <td class="tier-range">59,999.99</td>
+            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Your Tier indicator -->
+    <div style="max-width: 1200px; margin: 1.5rem auto 0; background: #fff; border: 1px solid rgba(73,79,255,0.15); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Based on your calculator estimate</div>
+          <div style="font-size: 1.1rem; font-weight: 600; color: #1a1a2e;">Your Estimated Tier: <span id="your-tier" style="color: var(--td-primary); font-size: 1.4rem;">0</span></div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: #666;">Annual Credits</div>
+          <div id="your-annual" style="font-size: 1.2rem; font-weight: 700; color: var(--td-secondary-1);">0.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- end tiers tab -->
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'tiers') updateTierHighlight();
+}
+
+function syncSliderInput(sliderId, inputId, callback) {
+  const slider = document.getElementById(sliderId);
+  const input = document.getElementById(inputId);
+  slider.addEventListener('input', () => { input.value = slider.value; callback(); });
+  input.addEventListener('input', () => { slider.value = input.value; callback(); });
+}
+
+function getTier(annual) {
+  const tiers = [
+    ['0', 0, 0], ['A', 1, 59.99], ['B', 60, 119.99], ['C', 120, 179.99],
+    ['D', 180, 239.99], ['E', 240, 299.99], ['F', 300, 359.99],
+    ['G', 360, 479.99], ['H', 480, 599.99], ['I', 600, 719.99],
+    ['J', 720, 959.99], ['K', 960, 1199.99], ['L', 1200, 1799.99],
+    ['M', 1800, 2399.99], ['N', 2400, 2999.99], ['O', 3000, 3599.99],
+    ['P', 3600, 4799.99], ['Q', 4800, 5999.99], ['R', 6000, 7199.99],
+    ['S', 7200, 8399.99], ['T', 8400, 9599.99], ['U', 9600, 10799.99],
+    ['V', 10800, 11999.99], ['W', 12000, 14999.99], ['X', 15000, 17999.99],
+    ['Y', 18000, 20999.99], ['Z', 21000, 23999.99], ['AA', 24000, 29999.99],
+    ['AB', 30000, 35999.99], ['AC', 36000, 41999.99], ['AD', 42000, 47999.99],
+    ['AE', 48000, 53999.99], ['AF', 54000, 59999.99]
+  ];
+  if (annual <= 0) return '0';
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    if (annual >= tiers[i][1]) return tiers[i][0];
+  }
+  return '0';
+}
+
+function updateTierHighlight() {
+  const annual = parseFloat(document.getElementById('total-annual').textContent) || 0;
+  const tier = getTier(annual);
+  document.getElementById('your-tier').textContent = tier;
+  document.getElementById('your-annual').textContent = annual.toFixed(2);
+  document.querySelectorAll('.tiers-table tbody tr').forEach(row => {
+    row.classList.remove('tier-highlight');
+    if (row.querySelector('.tier-name') && row.querySelector('.tier-name').textContent === tier) {
+      row.classList.add('tier-highlight');
+    }
+  });
+}
+
+function calculate() {
+  const foundryK = parseFloat(document.getElementById('foundry-input').value) || 0;
+  const foundryCredits = foundryK / 0.6;
+
+  const engageM = parseFloat(document.getElementById('engage-input').value) || 0;
+  const engageCredits = engageM / 1;
+
+  const rtProfilesM = parseFloat(document.getElementById('rt-profiles-input').value) || 0;
+  const rtCallsM = parseFloat(document.getElementById('rt-calls-input').value) || 0;
+  const rtPzCredits = (rtProfilesM / 1) + (rtCallsM / 10);
+
+  const trigProfilesM = parseFloat(document.getElementById('trig-profiles-input').value) || 0;
+  const trigEventsM = parseFloat(document.getElementById('trig-events-input').value) || 0;
+  const trigActivationsM = parseFloat(document.getElementById('trig-activations-input').value) || 0;
+  const rtTrigCredits = (trigProfilesM / 1) + (trigEventsM / 15) + (trigActivationsM / 25);
+
+  const signalsMlM = parseFloat(document.getElementById('signals-ml-input').value) || 0;
+  const signalsRfmM = parseFloat(document.getElementById('signals-rfm-input').value) || 0;
+  const signalsCredits = (signalsMlM / 40) + (signalsRfmM / 100);
+
+  document.getElementById('foundry-credits').textContent = foundryCredits.toFixed(2);
+  document.getElementById('engage-credits').textContent = engageCredits.toFixed(2);
+  document.getElementById('rt-pz-credits').textContent = rtPzCredits.toFixed(2);
+  document.getElementById('rt-trig-credits').textContent = rtTrigCredits.toFixed(2);
+  document.getElementById('signals-credits').textContent = signalsCredits.toFixed(2);
+
+  const total = foundryCredits + engageCredits + rtPzCredits + rtTrigCredits + signalsCredits;
+  const annual = total * 12;
+  document.getElementById('total-credits').textContent = total.toFixed(2);
+  document.getElementById('total-annual').textContent = annual.toFixed(2) + ' Credits / Year';
+
+  document.getElementById('bk-foundry').textContent = foundryCredits.toFixed(2);
+  document.getElementById('bk-engage').textContent = engageCredits.toFixed(2);
+  document.getElementById('bk-rt-pz').textContent = rtPzCredits.toFixed(2);
+  document.getElementById('bk-rt-trig').textContent = rtTrigCredits.toFixed(2);
+  document.getElementById('bk-signals').textContent = signalsCredits.toFixed(2);
+
+  updateTierHighlight();
+}
+
+syncSliderInput('foundry-slider', 'foundry-input', calculate);
+syncSliderInput('engage-slider', 'engage-input', calculate);
+syncSliderInput('rt-profiles-slider', 'rt-profiles-input', calculate);
+syncSliderInput('rt-calls-slider', 'rt-calls-input', calculate);
+syncSliderInput('trig-profiles-slider', 'trig-profiles-input', calculate);
+syncSliderInput('trig-events-slider', 'trig-events-input', calculate);
+syncSliderInput('trig-activations-slider', 'trig-activations-input', calculate);
+syncSliderInput('signals-ml-slider', 'signals-ml-input', calculate);
+syncSliderInput('signals-rfm-slider', 'signals-rfm-input', calculate);
+
+document.getElementById('signals-framework').addEventListener('change', calculate);
+document.getElementById('signals-addons').addEventListener('change', calculate);
+document.getElementById('signals-notebook').addEventListener('change', calculate);
+
+calculate();
+</script>
+</body>
+</html>
