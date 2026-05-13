@@ -556,6 +556,27 @@
   <div class="breakdown-row"><span class="bk-label">AI Signals</span><span class="bk-value" id="bk-signals">0.00</span></div>
 </div>
 
+<!-- Your Tier Estimate -->
+<div style="max-width: 1200px; margin: 1.5rem auto 0; background: #fff; border: 1px solid rgba(73,79,255,0.15); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Based on your calculator estimate</div>
+      <div style="font-size: 1.1rem; font-weight: 600; color: #1a1a2e;">Your Estimated Tier: <span id="your-tier" style="color: var(--td-primary); font-size: 1.4rem;">0</span></div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 0.8rem; color: #666;">Annual Credits</div>
+      <div id="your-annual" style="font-size: 1.2rem; font-weight: 700; color: var(--td-secondary-1);">0.00</div>
+    </div>
+  </div>
+</div>
+
+<!-- Finalize Button -->
+<div style="max-width: 1200px; margin: 2rem auto 0; text-align: center;">
+  <button id="finalize-btn" onclick="finalizeCalculation()" style="padding: 0.9rem 2.5rem; font-size: 1rem; font-weight: 600; color: #fff; background: var(--td-gradient); border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(73,79,255,0.3); transition: transform 0.15s, box-shadow 0.15s;">
+    Finalize & Download Excel
+  </button>
+</div>
+
 </div><!-- end calculator tab -->
 
 <!-- Tiers Reference Tab -->
@@ -573,7 +594,6 @@
             <th>Tier</th>
             <th>Annual Credits (Min)</th>
             <th>Annual Credits (Max)</th>
-            <th>Category</th>
           </tr>
         </thead>
         <tbody>
@@ -581,220 +601,175 @@
             <td class="tier-name">0</td>
             <td class="tier-range">—</td>
             <td class="tier-range">—</td>
-            <td><span class="tier-category cat-entry">No Credits</span></td>
           </tr>
           <tr>
             <td class="tier-name">A</td>
             <td class="tier-range">1</td>
             <td class="tier-range">59.99</td>
-            <td><span class="tier-category cat-entry">Entry</span></td>
           </tr>
           <tr>
             <td class="tier-name">B</td>
             <td class="tier-range">60</td>
             <td class="tier-range">119.99</td>
-            <td><span class="tier-category cat-entry">Entry</span></td>
           </tr>
           <tr>
             <td class="tier-name">C</td>
             <td class="tier-range">120</td>
             <td class="tier-range">179.99</td>
-            <td><span class="tier-category cat-entry">Entry</span></td>
           </tr>
           <tr>
             <td class="tier-name">D</td>
             <td class="tier-range">180</td>
             <td class="tier-range">239.99</td>
-            <td><span class="tier-category cat-entry">Entry</span></td>
           </tr>
           <tr>
             <td class="tier-name">E</td>
             <td class="tier-range">240</td>
             <td class="tier-range">299.99</td>
-            <td><span class="tier-category cat-entry">Entry</span></td>
           </tr>
           <tr>
             <td class="tier-name">F</td>
             <td class="tier-range">300</td>
             <td class="tier-range">359.99</td>
-            <td><span class="tier-category cat-entry">Entry</span></td>
           </tr>
           <tr>
             <td class="tier-name">G</td>
             <td class="tier-range">360</td>
             <td class="tier-range">479.99</td>
-            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
           </tr>
           <tr>
             <td class="tier-name">H</td>
             <td class="tier-range">480</td>
             <td class="tier-range">599.99</td>
-            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
           </tr>
           <tr>
             <td class="tier-name">I</td>
             <td class="tier-range">600</td>
             <td class="tier-range">719.99</td>
-            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
           </tr>
           <tr>
             <td class="tier-name">J</td>
             <td class="tier-range">720</td>
             <td class="tier-range">959.99</td>
-            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
           </tr>
           <tr>
             <td class="tier-name">K</td>
             <td class="tier-range">960</td>
             <td class="tier-range">1,199.99</td>
-            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
           </tr>
           <tr>
             <td class="tier-name">L</td>
             <td class="tier-range">1,200</td>
             <td class="tier-range">1,799.99</td>
-            <td><span class="tier-category cat-mid">Mid-Tier</span></td>
           </tr>
           <tr>
             <td class="tier-name">M</td>
             <td class="tier-range">1,800</td>
             <td class="tier-range">2,399.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">N</td>
             <td class="tier-range">2,400</td>
             <td class="tier-range">2,999.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">O</td>
             <td class="tier-range">3,000</td>
             <td class="tier-range">3,599.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">P</td>
             <td class="tier-range">3,600</td>
             <td class="tier-range">4,799.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">Q</td>
             <td class="tier-range">4,800</td>
             <td class="tier-range">5,999.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">R</td>
             <td class="tier-range">6,000</td>
             <td class="tier-range">7,199.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">S</td>
             <td class="tier-range">7,200</td>
             <td class="tier-range">8,399.99</td>
-            <td><span class="tier-category cat-upper">Upper Mid</span></td>
           </tr>
           <tr>
             <td class="tier-name">T</td>
             <td class="tier-range">8,400</td>
             <td class="tier-range">9,599.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">U</td>
             <td class="tier-range">9,600</td>
             <td class="tier-range">10,799.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">V</td>
             <td class="tier-range">10,800</td>
             <td class="tier-range">11,999.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">W</td>
             <td class="tier-range">12,000</td>
             <td class="tier-range">14,999.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">X</td>
             <td class="tier-range">15,000</td>
             <td class="tier-range">17,999.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">Y</td>
             <td class="tier-range">18,000</td>
             <td class="tier-range">20,999.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">Z</td>
             <td class="tier-range">21,000</td>
             <td class="tier-range">23,999.99</td>
-            <td><span class="tier-category cat-premium">Premium</span></td>
           </tr>
           <tr>
             <td class="tier-name">AA</td>
             <td class="tier-range">24,000</td>
             <td class="tier-range">29,999.99</td>
-            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
           </tr>
           <tr>
             <td class="tier-name">AB</td>
             <td class="tier-range">30,000</td>
             <td class="tier-range">35,999.99</td>
-            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
           </tr>
           <tr>
             <td class="tier-name">AC</td>
             <td class="tier-range">36,000</td>
             <td class="tier-range">41,999.99</td>
-            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
           </tr>
           <tr>
             <td class="tier-name">AD</td>
             <td class="tier-range">42,000</td>
             <td class="tier-range">47,999.99</td>
-            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
           </tr>
           <tr>
             <td class="tier-name">AE</td>
             <td class="tier-range">48,000</td>
             <td class="tier-range">53,999.99</td>
-            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
           </tr>
           <tr>
             <td class="tier-name">AF</td>
             <td class="tier-range">54,000</td>
             <td class="tier-range">59,999.99</td>
-            <td><span class="tier-category cat-enterprise">Enterprise</span></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Your Tier indicator -->
-    <div style="max-width: 1200px; margin: 1.5rem auto 0; background: #fff; border: 1px solid rgba(73,79,255,0.15); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Based on your calculator estimate</div>
-          <div style="font-size: 1.1rem; font-weight: 600; color: #1a1a2e;">Your Estimated Tier: <span id="your-tier" style="color: var(--td-primary); font-size: 1.4rem;">0</span></div>
-        </div>
-        <div style="text-align: right;">
-          <div style="font-size: 0.8rem; color: #666;">Annual Credits</div>
-          <div id="your-annual" style="font-size: 1.2rem; font-weight: 700; color: var(--td-secondary-1);">0.00</div>
-        </div>
-      </div>
-    </div>
   </div>
 </div><!-- end tiers tab -->
 
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -898,6 +873,96 @@ syncSliderInput('signals-rfm-slider', 'signals-rfm-input', calculate);
 document.getElementById('signals-framework').addEventListener('change', calculate);
 document.getElementById('signals-addons').addEventListener('change', calculate);
 document.getElementById('signals-notebook').addEventListener('change', calculate);
+
+function finalizeCalculation() {
+  const confirmed = confirm('Are you sure you want to finalize and download the credit estimate as an Excel file?');
+  if (!confirmed) return;
+
+  const fileName = prompt('Enter a name for the file (e.g., Sheezv1):');
+  if (!fileName || fileName.trim() === '') return;
+
+  const foundryK = parseFloat(document.getElementById('foundry-input').value) || 0;
+  const foundryCredits = foundryK / 0.6;
+  const engageM = parseFloat(document.getElementById('engage-input').value) || 0;
+  const engageCredits = engageM;
+  const rtProfilesM = parseFloat(document.getElementById('rt-profiles-input').value) || 0;
+  const rtCallsM = parseFloat(document.getElementById('rt-calls-input').value) || 0;
+  const rtPzCredits = (rtProfilesM / 1) + (rtCallsM / 10);
+  const trigProfilesM = parseFloat(document.getElementById('trig-profiles-input').value) || 0;
+  const trigEventsM = parseFloat(document.getElementById('trig-events-input').value) || 0;
+  const trigActivationsM = parseFloat(document.getElementById('trig-activations-input').value) || 0;
+  const rtTrigCredits = (trigProfilesM / 1) + (trigEventsM / 15) + (trigActivationsM / 25);
+  const signalsMlM = parseFloat(document.getElementById('signals-ml-input').value) || 0;
+  const signalsRfmM = parseFloat(document.getElementById('signals-rfm-input').value) || 0;
+  const signalsCredits = (signalsMlM / 40) + (signalsRfmM / 100);
+  const totalMonthly = foundryCredits + engageCredits + rtPzCredits + rtTrigCredits + signalsCredits;
+  const totalAnnual = totalMonthly * 12;
+  const tier = getTier(totalAnnual);
+  const framework = document.getElementById('signals-framework').value;
+  const addons = document.getElementById('signals-addons').value;
+  const notebook = document.getElementById('signals-notebook').value;
+
+  // Build Calculator sheet data (same format as source spreadsheet)
+  const calcData = [
+    ['Treasure AI Credit Calculator'],
+    [],
+    ['Product', 'Metric', 'Value', 'Credits/Month', 'Credits/Year'],
+    ['AI Foundry', 'Total Conversations /mo. (K)', foundryK, foundryCredits.toFixed(2), (foundryCredits * 12).toFixed(2)],
+    ['Agentic Engage', '# of emails sent / mo. (M)', engageM, engageCredits.toFixed(2), (engageCredits * 12).toFixed(2)],
+    ['RT Personalization', 'Total # of RT Profiles (M)', rtProfilesM, '', ''],
+    ['RT Personalization', '# of Incoming/Outgoing Personalization Call / mo. (M)', rtCallsM, rtPzCredits.toFixed(2), (rtPzCredits * 12).toFixed(2)],
+    ['RT Triggers', 'Total # of RT Profiles (M)', trigProfilesM, '', ''],
+    ['RT Triggers', '# of RT Incoming Trigger Events / mo. (M)', trigEventsM, '', ''],
+    ['RT Triggers', '# of Outgoing Trigger Activation / mo. (M)', trigActivationsM, rtTrigCredits.toFixed(2), (rtTrigCredits * 12).toFixed(2)],
+    ['AI Signals', 'AutoML Framework Package', framework === 'none' ? 'No AutoML' : framework, '', ''],
+    ['AI Signals', 'AutoML Framework Add Ons', addons === 'none' ? 'No AutoML' : addons, '', ''],
+    ['AI Signals', 'AutoML Solution Notebook Package', notebook === 'no' ? 'No' : 'Yes', '', ''],
+    ['AI Signals', 'ML Model Predictions / mo. (M)', signalsMlM, '', ''],
+    ['AI Signals', 'RFM Model Predictions / mo. (M)', signalsRfmM, signalsCredits.toFixed(2), (signalsCredits * 12).toFixed(2)],
+    [],
+    ['TOTAL', '', '', totalMonthly.toFixed(2), totalAnnual.toFixed(2)],
+    [],
+    ['Estimated Tier', tier],
+    [],
+    ['Credit Conversion Reference'],
+    ['1 Credit = 600 Conversations'],
+    ['1 Credit = 1 Million Messages Sent'],
+    ['1 Credit = 1 Million RT Profiles (monthly)'],
+    ['1 Credit = 10 Million Personalization Calls'],
+    ['1 Credit = 15 Million Incoming RT Trigger Events'],
+    ['1 Credit = 25 Million Outgoing RT Trigger Activations'],
+    ['1 Credit = 40 Million ML Predictions'],
+    ['1 Credit = 100 Million RFM Predictions']
+  ];
+
+  // Build Tiers sheet data
+  const tiersData = [
+    ['AI Suite Credits Tier', 'Annual credits - min', 'Annual credits - max'],
+    ['0', '', ''],
+    ['A', 1, 59.99], ['B', 60, 119.99], ['C', 120, 179.99],
+    ['D', 180, 239.99], ['E', 240, 299.99], ['F', 300, 359.99],
+    ['G', 360, 479.99], ['H', 480, 599.99], ['I', 600, 719.99],
+    ['J', 720, 959.99], ['K', 960, 1199.99], ['L', 1200, 1799.99],
+    ['M', 1800, 2399.99], ['N', 2400, 2999.99], ['O', 3000, 3599.99],
+    ['P', 3600, 4799.99], ['Q', 4800, 5999.99], ['R', 6000, 7199.99],
+    ['S', 7200, 8399.99], ['T', 8400, 9599.99], ['U', 9600, 10799.99],
+    ['V', 10800, 11999.99], ['W', 12000, 14999.99], ['X', 15000, 17999.99],
+    ['Y', 18000, 20999.99], ['Z', 21000, 23999.99], ['AA', 24000, 29999.99],
+    ['AB', 30000, 35999.99], ['AC', 36000, 41999.99], ['AD', 42000, 47999.99],
+    ['AE', 48000, 53999.99], ['AF', 54000, 59999.99]
+  ];
+
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet(calcData);
+  ws1['!cols'] = [{wch:20},{wch:50},{wch:15},{wch:15},{wch:15}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Calculator');
+
+  const ws2 = XLSX.utils.aoa_to_sheet(tiersData);
+  ws2['!cols'] = [{wch:20},{wch:20},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Tiers');
+
+  XLSX.writeFile(wb, fileName.trim() + '.xlsx');
+}
 
 calculate();
 </script>
