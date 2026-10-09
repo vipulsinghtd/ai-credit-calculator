@@ -24,6 +24,7 @@ In the HTML the rates live in the `RATES` object; in the workbook they're in cel
 
 ## Rules
 
+- **Email is charged one way, not both.** Users choose *Emails sent* (1 credit = 1M) or *Email clicks* (1 credit = 20K); only the chosen metric counts. SMS and Mobile Push are added on top. In the workbook, pick the option in cell `D21`.
 - **RT Profiles are charged once.** If both RT Personalization and RT Triggers are used, Triggers only pays for profiles above the RT Personalization count.
 - **AI Signals is included with AEP.** No package selections; credits come from predictions only.
 - **Tier** = annual credits × (1 + buffer). Buffer: None / 5% / 10% (default 10%).

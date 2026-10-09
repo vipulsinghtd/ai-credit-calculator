@@ -249,6 +249,15 @@
     background: #fff;
     color: #1a1a2e;
   }
+  .metering-toggle { display: inline-flex; padding: 4px; border-radius: 10px; background: #f0f0f8; margin-bottom: 0.4rem; }
+  .metering-toggle button {
+    padding: 0.45rem 1rem; border: none; border-radius: 8px; background: transparent;
+    font-size: 0.8rem; font-weight: 600; color: #888; cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .metering-toggle button[aria-pressed="true"] { background: #fff; color: var(--td-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .choice-note { font-size: 0.72rem; color: #999; margin-bottom: 1rem; }
+  .is-hidden { display: none; }
   .breakdown-row {
     display: flex;
     justify-content: space-between;
@@ -394,16 +403,24 @@
       <span class="card-badge">Engagement Suite</span>
     </div>
     <div class="card-definition">
-      Agentic Engage enables AI-powered customer engagement through email, SMS, mobile push, and messaging at scale. <strong>Email Messages</strong> are counted from messages sent via Engage Studio in Production Instances. <strong>Email Clicks</strong>, <strong>SMS Messages</strong>, and <strong>Mobile Push Messages</strong> each convert to credits at their own rate and are added together.
+      Agentic Engage enables AI-powered customer engagement through email, SMS, mobile push, and messaging at scale. <strong>Email Messages</strong> are counted from messages sent via Engage Studio in Production Instances. Email is charged <strong>either by emails sent or by email clicks</strong>, not both. <strong>SMS Messages</strong> and <strong>Mobile Push Messages</strong> are added on top.
     </div>
-    <div class="input-group">
+    <div class="input-group" style="margin-bottom: 0;">
+      <label id="email-metering-label">Charge email by</label>
+      <div class="metering-toggle" role="group" aria-labelledby="email-metering-label">
+        <button type="button" aria-pressed="true" data-metering="sends" onclick="setEmailMetering('sends')">Emails sent</button>
+        <button type="button" aria-pressed="false" data-metering="clicks" onclick="setEmailMetering('clicks')">Email clicks</button>
+      </div>
+      <div class="choice-note">Pick one: 1 credit = 1M emails sent, or 1 credit = 20K email clicks.</div>
+    </div>
+    <div class="input-group" id="engage-sends-group">
       <label>Emails Sent / month (Millions) <span class="unit">× 1,000,000</span></label>
       <div class="input-row">
         <input type="range" id="engage-slider" min="0" max="50" value="0" step="0.5">
         <input type="number" id="engage-input" min="0" max="1000" value="0" step="0.1">
       </div>
     </div>
-    <div class="input-group">
+    <div class="input-group is-hidden" id="engage-clicks-group">
       <label>Email Clicks / month (Thousands) <span class="unit">× 1,000</span></label>
       <div class="input-row">
         <input type="range" id="engage-clicks-slider" min="0" max="1000" value="0" step="10">
@@ -428,7 +445,7 @@
       <span class="label">Credits / Month</span>
       <span class="value" id="engage-credits">0.00</span>
     </div>
-    <div class="conversion-note">1 Credit = 1 Million Email Messages &nbsp;|&nbsp; 20 Thousand Email Clicks &nbsp;|&nbsp; 10 Thousand SMS Messages &nbsp;|&nbsp; 10 Million Mobile Push Messages</div>
+    <div class="conversion-note">Email: 1 Credit = 1 Million Emails Sent <strong>or</strong> 20 Thousand Email Clicks (choose one) &nbsp;|&nbsp; 1 Credit = 10 Thousand SMS Messages &nbsp;|&nbsp; 10 Million Mobile Push Messages</div>
   </div>
 
   <!-- RT Personalization -->
@@ -856,12 +873,25 @@ function num(id) {
   return v > 0 ? v : 0;
 }
 
+// Email is charged either by sends (1M per credit) or by clicks (20K per credit) — never both
+let emailMetering = 'sends';
+function setEmailMetering(mode) {
+  emailMetering = mode;
+  document.querySelectorAll('.metering-toggle [data-metering]').forEach(b =>
+    b.setAttribute('aria-pressed', b.dataset.metering === mode ? 'true' : 'false'));
+  document.getElementById('engage-sends-group').classList.toggle('is-hidden', mode !== 'sends');
+  document.getElementById('engage-clicks-group').classList.toggle('is-hidden', mode !== 'clicks');
+  calculate();
+}
+
 // Single source of truth for credits — used by the on-screen totals and the Excel download
 function computeCredits() {
   const i = {
     foundryK: num('foundry-input'),
-    engageM: num('engage-input'),
-    clicksK: num('engage-clicks-input'),
+    emailMetering,
+    // Only the chosen email metric counts; the other is ignored
+    engageM: emailMetering === 'sends' ? num('engage-input') : 0,
+    clicksK: emailMetering === 'clicks' ? num('engage-clicks-input') : 0,
     smsK: num('engage-sms-input'),
     pushM: num('engage-push-input'),
     rtProfilesM: num('rt-profiles-input'),
@@ -965,8 +995,9 @@ function finalizeCalculation() {
     [],
     ['Product', 'Metric', 'Value', 'Credits/Month', 'Credits/Year'],
     ['AI Foundry', 'Total Conversations /mo. (K)', i.foundryK, round2(c.foundry), round2(c.foundry * 12)],
-    ['Agentic Engage', '# of emails sent / mo. (M)', i.engageM, '', ''],
-    ['Agentic Engage', '# of email clicks / mo. (K)', i.clicksK, '', ''],
+    ['Agentic Engage', 'Email charged by (choose one)', i.emailMetering === 'sends' ? 'Emails sent' : 'Email clicks', '', ''],
+    ['Agentic Engage', '# of emails sent / mo. (M)', i.emailMetering === 'sends' ? i.engageM : '', '', ''],
+    ['Agentic Engage', '# of email clicks / mo. (K)', i.emailMetering === 'clicks' ? i.clicksK : '', '', ''],
     ['Agentic Engage', '# of SMS messages / mo. (K)', i.smsK, '', ''],
     ['Agentic Engage', '# of mobile push messages / mo. (M)', i.pushM, round2(c.engage), round2(c.engage * 12)],
     ['RT Personalization', 'Total # of RT Profiles (M)', i.rtProfilesM, '', ''],
@@ -987,8 +1018,7 @@ function finalizeCalculation() {
     [],
     ['Credit Conversion Reference'],
     ['1 Credit = 600 Conversations'],
-    ['1 Credit = 1 Million Email Messages'],
-    ['1 Credit = 20 Thousand Email Clicks'],
+    ['1 Credit = 1 Million Email Messages OR 20 Thousand Email Clicks (choose one, not both)'],
     ['1 Credit = 10 Thousand SMS Messages'],
     ['1 Credit = 10 Million Mobile Push Messages'],
     ['1 Credit = 1 Million RT Profiles (incurred monthly)'],
