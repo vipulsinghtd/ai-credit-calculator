@@ -8,7 +8,7 @@ For the combined CDP (P+B) + AI credits estimator with sheet submission, see [pr
 
 | Product | Metric | Units per credit |
 |---|---|---|
-| AI Foundry | Conversations | 600 |
+| AI Studio | Conversations | 600 |
 | Agentic Engage | Email Messages | 1 Million |
 | Agentic Engage | Email Clicks | 20 Thousand |
 | Agentic Engage | SMS Messages | 10 Thousand |

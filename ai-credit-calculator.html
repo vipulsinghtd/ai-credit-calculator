@@ -373,25 +373,25 @@
 
 <div class="calculator-grid">
 
-  <!-- AI Foundry -->
+  <!-- AI Studio -->
   <div class="product-card">
     <div class="card-header">
-      <span class="card-title">AI Foundry</span>
+      <span class="card-title">AI Studio</span>
       <span class="card-badge">All Suites</span>
     </div>
     <div class="card-definition">
-      AI Agent Foundry powers conversational AI across Treasure AI Studio, Code, and AI Agents. A <strong>Conversation</strong> is defined as an average of five back-and-forth exchanges between two entities using standard Large Language Models. Metered across Studio, Code, and AI Agent Foundry on Production Instances.
+      Powers conversational AI across Treasure AI Studio, Code, and AI Agents. A <strong>Conversation</strong> is defined as an average of five back-and-forth exchanges between two entities using standard Large Language Models. Metered across Studio, Code, and AI Agents on Production Instances.
     </div>
     <div class="input-group">
       <label>Total Conversations / month (Thousands) <span class="unit">× 1,000</span></label>
       <div class="input-row">
-        <input type="range" id="foundry-slider" min="0" max="500" value="0" step="1">
-        <input type="number" id="foundry-input" min="0" max="10000" value="0" step="1">
+        <input type="range" id="studio-slider" min="0" max="500" value="0" step="1">
+        <input type="number" id="studio-input" min="0" max="10000" value="0" step="1">
       </div>
     </div>
     <div class="credit-output">
       <span class="label">Credits / Month</span>
-      <span class="value" id="foundry-credits">0.00</span>
+      <span class="value" id="studio-credits">0.00</span>
     </div>
     <div class="conversion-note">1 Credit = 600 Conversations</div>
   </div>
@@ -563,7 +563,7 @@
 <!-- Breakdown -->
 <div style="max-width: 1200px; margin: 1.5rem auto 0; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
   <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: #1a1a2e;">Monthly Breakdown</div>
-  <div class="breakdown-row"><span class="bk-label">AI Foundry</span><span class="bk-value" id="bk-foundry">0.00</span></div>
+  <div class="breakdown-row"><span class="bk-label">AI Studio</span><span class="bk-value" id="bk-studio">0.00</span></div>
   <div class="breakdown-row"><span class="bk-label">Agentic Engage</span><span class="bk-value" id="bk-engage">0.00</span></div>
   <div class="breakdown-row"><span class="bk-label">RT Personalization</span><span class="bk-value" id="bk-rt-pz">0.00</span></div>
   <div class="breakdown-row"><span class="bk-label">RT Triggers</span><span class="bk-value" id="bk-rt-trig">0.00</span></div>
@@ -620,7 +620,7 @@
   <div class="tiers-container">
     <div class="tiers-intro">
       <h2>AI Suite Credits Tier Structure</h2>
-      <p>Treasure AI credits are organized into tiers based on annual consumption. Each tier defines a range of annual credits that determines your entitlement level. The tier is calculated from total annual credits across all AI Suite products (AI Foundry, Agentic Engage, RT Personalization, RT Triggers, and AI Signals), plus the headroom buffer you choose. Above Tier AF, contact Deal Desk.</p>
+      <p>Treasure AI credits are organized into tiers based on annual consumption. Each tier defines a range of annual credits that determines your entitlement level. The tier is calculated from total annual credits across all AI Suite products (AI Studio, Agentic Engage, RT Personalization, RT Triggers, and AI Signals), plus the headroom buffer you choose. Above Tier AF, contact Deal Desk.</p>
     </div>
 
     <div class="tiers-table-wrap">
@@ -824,7 +824,7 @@ function syncSliderInput(sliderId, inputId, callback) {
 
 // 1 credit = this many units. Update here when credit definitions / metering change.
 const RATES = {
-  foundryConversations: 600,  // conversations
+  studioConversations: 600,  // conversations
   engageEmailsM: 1,           // million email messages
   engageClicksK: 20,          // thousand email clicks
   engageSmsK: 10,             // thousand SMS messages
@@ -887,7 +887,7 @@ function setEmailMetering(mode) {
 // Single source of truth for credits — used by the on-screen totals and the Excel download
 function computeCredits() {
   const i = {
-    foundryK: num('foundry-input'),
+    studioK: num('studio-input'),
     emailMetering,
     // Only the chosen email metric counts; the other is ignored
     engageM: emailMetering === 'sends' ? num('engage-input') : 0,
@@ -903,7 +903,7 @@ function computeCredits() {
     rfmM: num('signals-rfm-input')
   };
 
-  const foundry = (i.foundryK * 1000) / RATES.foundryConversations;
+  const studio = (i.studioK * 1000) / RATES.studioConversations;
   const engage = i.engageM / RATES.engageEmailsM + i.clicksK / RATES.engageClicksK +
                  i.smsK / RATES.engageSmsK + i.pushM / RATES.engagePushM;
   const rtPz = i.rtProfilesM / RATES.rtProfilesM + i.rtCallsM / RATES.rtCallsM;
@@ -913,13 +913,13 @@ function computeCredits() {
                  i.trigActivationsM / RATES.trigActivationsM;
   const signals = i.mlM / RATES.signalsMlM + i.rfmM / RATES.signalsRfmM;
 
-  const monthly = foundry + engage + rtPz + rtTrig + signals;
+  const monthly = studio + engage + rtPz + rtTrig + signals;
   const annual = monthly * 12;
   const bufferPct = parseFloat(document.getElementById('buffer').value) || 0;
   const annualWithBuffer = annual * (1 + bufferPct / 100);
   const tier = getTier(annualWithBuffer);
 
-  return { inputs: i, credits: { foundry, engage, rtPz, rtTrig, signals }, monthly, annual, bufferPct, annualWithBuffer, tier };
+  return { inputs: i, credits: { studio, engage, rtPz, rtTrig, signals }, monthly, annual, bufferPct, annualWithBuffer, tier };
 }
 
 function updateTierHighlight(tierName) {
@@ -935,7 +935,7 @@ function calculate() {
   const r = computeCredits();
   const fmt = n => n.toFixed(2);
 
-  document.getElementById('foundry-credits').textContent = fmt(r.credits.foundry);
+  document.getElementById('studio-credits').textContent = fmt(r.credits.studio);
   document.getElementById('engage-credits').textContent = fmt(r.credits.engage);
   document.getElementById('rt-pz-credits').textContent = fmt(r.credits.rtPz);
   document.getElementById('rt-trig-credits').textContent = fmt(r.credits.rtTrig);
@@ -944,7 +944,7 @@ function calculate() {
   document.getElementById('total-credits').textContent = fmt(r.monthly);
   document.getElementById('total-annual').textContent = fmt(r.annual) + ' Credits / Year';
 
-  document.getElementById('bk-foundry').textContent = fmt(r.credits.foundry);
+  document.getElementById('bk-studio').textContent = fmt(r.credits.studio);
   document.getElementById('bk-engage').textContent = fmt(r.credits.engage);
   document.getElementById('bk-rt-pz').textContent = fmt(r.credits.rtPz);
   document.getElementById('bk-rt-trig').textContent = fmt(r.credits.rtTrig);
@@ -962,7 +962,7 @@ function calculate() {
   updateTierHighlight(r.tier.name);
 }
 
-syncSliderInput('foundry-slider', 'foundry-input', calculate);
+syncSliderInput('studio-slider', 'studio-input', calculate);
 syncSliderInput('engage-slider', 'engage-input', calculate);
 syncSliderInput('engage-clicks-slider', 'engage-clicks-input', calculate);
 syncSliderInput('engage-sms-slider', 'engage-sms-input', calculate);
@@ -994,7 +994,7 @@ function finalizeCalculation() {
     ['Treasure AI Credit Calculator'],
     [],
     ['Product', 'Metric', 'Value', 'Credits/Month', 'Credits/Year'],
-    ['AI Foundry', 'Total Conversations /mo. (K)', i.foundryK, round2(c.foundry), round2(c.foundry * 12)],
+    ['AI Studio', 'Total Conversations /mo. (K)', i.studioK, round2(c.studio), round2(c.studio * 12)],
     ['Agentic Engage', 'Email charged by (choose one)', i.emailMetering === 'sends' ? 'Emails sent' : 'Email clicks', '', ''],
     ['Agentic Engage', '# of emails sent / mo. (M)', i.emailMetering === 'sends' ? i.engageM : '', '', ''],
     ['Agentic Engage', '# of email clicks / mo. (K)', i.emailMetering === 'clicks' ? i.clicksK : '', '', ''],
